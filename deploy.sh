@@ -1,6 +1,7 @@
 #!/bin/sh
 # Quick deployment script for james-harney.com
-# Run this on your OpenBSD server
+# Run this on your OpenBSD server (requires git)
+# NOTE: For deployment without git, use deploy-scp.sh from your local machine
 
 set -e
 
@@ -9,6 +10,14 @@ REPO_URL="https://github.com/Jharney799/website.git"  # Update with your repo UR
 TEMP_DIR="/tmp/website-deploy"
 
 echo "=== Deploying james-harney.com ==="
+
+# Check if git is installed
+if ! command -v git >/dev/null 2>&1; then
+    echo "Error: git is not installed."
+    echo "Install with: doas pkg_add git"
+    echo "Or use deploy-scp.sh from your local machine instead."
+    exit 1
+fi
 
 # Clone or pull latest changes
 if [ -d "$TEMP_DIR" ]; then

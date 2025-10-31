@@ -113,21 +113,59 @@ For HTTPS support using Let's Encrypt:
 doas acme-client -v james-harney.com
 ```
 
-## Updating the Website
+## Deploying Website Files to Server
 
-To update website files:
+### Method 1: SCP from Local Machine (Recommended)
+
+From your local machine where you have the website code:
 
 ```sh
-# On your local machine, push to git
-git add .
-git commit -m "Update website"
-git push
+# Upload website files
+scp -r htdocs/* user@your-server-ip:/tmp/website-upload/
 
-# On your OpenBSD server
-cd /path/to/website
-git pull
+# Then on the server:
+doas cp -r /tmp/website-upload/* /var/www/htdocs/james-harney/
+doas chown -R www:www /var/www/htdocs/james-harney
+rm -rf /tmp/website-upload
+```
+
+Or use the included `deploy-scp.sh` script:
+
+```sh
+# Edit deploy-scp.sh to set your server IP/hostname
+./deploy-scp.sh
+```
+
+### Method 2: Manual Upload via SFTP
+
+Use an SFTP client (like FileZilla, Cyberduck, or WinSCP) to upload the contents of the `htdocs/` directory to your server at `/var/www/htdocs/james-harney/`
+
+After upload, SSH to your server and set permissions:
+
+```sh
+doas chown -R www:www /var/www/htdocs/james-harney
+doas chmod -R 755 /var/www/htdocs/james-harney
+```
+
+### Method 3: Using Git (Optional)
+
+If you want to use git on the server:
+
+```sh
+# On OpenBSD server, install git
+doas pkg_add git
+
+# Clone your repository
+cd /tmp
+git clone https://github.com/Jharney799/website.git
+cd website
 doas cp -r htdocs/* /var/www/htdocs/james-harney/
 doas chown -R www:www /var/www/htdocs/james-harney
+
+# For future updates
+cd /tmp/website
+git pull
+doas cp -r htdocs/* /var/www/htdocs/james-harney/
 ```
 
 ## Troubleshooting
