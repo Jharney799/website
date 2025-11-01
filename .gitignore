@@ -1,0 +1,13 @@
+# Sync database
+sync.ffs_db
+
+# macOS
+.DS_Store
+
+# Backups
+*.backup.*
+*.bak
+
+# Temporary files
+*.tmp
+*~

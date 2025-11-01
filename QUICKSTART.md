@@ -2,74 +2,34 @@
 
 This guide assumes you have a fresh OpenBSD VPS on Vultr.
 
-## Step 1: Prepare Your Server (SSH into your Vultr VPS)
+## Step 1: Install Required Packages
+
+SSH into your Vultr VPS:
 
 ```sh
-# Install PHP
-doas pkg_add php php-fpm
-
-# Create the httpd configuration file
-doas vi /etc/httpd.conf
+# Install PHP and git
+doas pkg_add php php-fpm git
 ```
 
-Paste this configuration (replace `YOUR-DOMAIN.com` with your actual domain):
-
-```
-server "YOUR-DOMAIN.com" {
-    alias "www.YOUR-DOMAIN.com"
-    listen on * port 80
-    root "/htdocs/james-harney"
-    directory index index.html
-
-    location "*.php" {
-        fastcgi socket "/run/php-fpm.sock"
-    }
-}
-
-types {
-    include "/usr/share/misc/mime.types"
-}
-```
-
-## Step 2: Create Web Directory
+## Step 2: Clone Website Repository
 
 ```sh
-doas mkdir -p /var/www/htdocs/james-harney
-```
+# Clone the repository directly into your web directory
+doas git clone https://github.com/Jharney799/website.git /var/www/htdocs/james-harney
 
-## Step 3: Upload Your Website Files
-
-**Option A: Using SCP (from your local machine)**
-
-Download this repository to your local machine, then:
-
-```sh
-cd website
-# Edit deploy-scp.sh and set your server IP and username
-vi deploy-scp.sh
-# Run deployment
-./deploy-scp.sh
-```
-
-**Option B: Manual SFTP Upload**
-
-1. Use FileZilla, Cyberduck, or WinSCP
-2. Connect to your server
-3. Upload all files from `htdocs/` to `/var/www/htdocs/james-harney/`
-4. Then SSH to server and run:
-   ```sh
-   doas chown -R www:www /var/www/htdocs/james-harney
-   doas chmod -R 755 /var/www/htdocs/james-harney
-   ```
-
-**Option C: Using wget (if files are hosted somewhere)**
-
-```sh
-cd /tmp
-# Download and extract your website files
-# Then:
-doas cp -r /tmp/your-extracted-files/* /var/www/htdocs/james-harney/
+# Set proper permissions
 doas chown -R www:www /var/www/htdocs/james-harney
+doas chmod -R 755 /var/www/htdocs/james-harney
+```
+
+## Step 3: Configure httpd
+
+```sh
+# Copy the server configuration
+doas cp /var/www/htdocs/james-harney/server/httpd.conf /etc/httpd.conf
+
+# Edit if needed (update domain name)
+doas vi /etc/httpd.conf
 ```
 
 ## Step 4: Start Web Services
@@ -114,6 +74,27 @@ In your domain registrar's DNS settings:
 - Add an A record pointing to your Vultr server IP
 - Wait 5-15 minutes for DNS to propagate
 
+---
+
+## Updating Your Website
+
+This is now super simple! Just pull the latest changes:
+
+```sh
+cd /var/www/htdocs/james-harney
+doas git pull
+doas rcctl restart httpd
+```
+
+Or use the deployment script:
+
+```sh
+cd /var/www/htdocs/james-harney
+doas ./deploy.sh
+```
+
+---
+
 ## Troubleshooting
 
 **Website not loading?**
@@ -151,12 +132,12 @@ In your domain registrar's DNS settings:
    ```
    Visit: `http://YOUR-SERVER-IP/test.php`
 
+---
+
 ## Next Steps
 
 - Set up HTTPS with Let's Encrypt (see DEPLOYMENT.md)
 - Configure email sending for contact form (see DEPLOYMENT.md)
 - Set up automated backups
-
----
 
 **Need more detailed instructions?** See DEPLOYMENT.md for comprehensive documentation.
