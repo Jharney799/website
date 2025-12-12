@@ -6,7 +6,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {     // Sanitize and validate input
 
     if ($name && $email && $message) {
         // Email configuration
-        $to = "jharney@gmail.com";
+        $to = "jharney799@gmail.com";
         $subject = "New Contact Form Submission";
         $headers = "From: $email\r\nReply-To: $email\r\nContent-Type: text/plain; charset=UTF-8";
 
